@@ -93,7 +93,7 @@ def metric_processing_time(name):
 @metric_processing_time('colo')
 def get_colo_metrics():
     logging.info('Fetching colo metrics data')
-    endpoint = '%szones/%s/analytics/colos?since=-35&until=-5&continuous=false'
+    endpoint = '%szones/%s/analytics/colos?since=-6&until=-5&continuous=false'
     r = get_data_from_cf(url=endpoint % (ENDPOINT, get_zone_id()))
 
     if not r['success']:

@@ -2,18 +2,20 @@
 
 from __future__ import print_function
 
+import csv
 import datetime
 import delorean
 import os
 import sys
 import json
 import logging
+import requests
 
 import requests
 import time
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask
+from flask import Flask, Response
 from prometheus_client.core import GaugeMetricFamily
 from prometheus_client.exposition import generate_latest
 
@@ -237,6 +239,22 @@ def status():
 def metrics():
     return latest_metrics
 
+
+@app.route("/geocoding")
+def geocoding():
+    json_data = []
+    data = requests.get('https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat',verify=False)
+    text = data.content.decode('utf-8').encode('ascii','ignore')
+    reader = csv.reader(text.splitlines(), delimiter=',')
+    for rows in list(reader):
+        if rows[4]:
+            json_data.append({
+                'key': rows[4],
+                'latitude': rows[6],
+                'longitude': rows[7],
+                'name': rows[2]
+            })
+    return Response(json.dumps(json_data), mimetype='application/json')
 
 def run():
     logging.info('Starting scrape service for zone "%s" using [%s...]'
